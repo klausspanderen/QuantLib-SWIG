@@ -419,8 +419,10 @@ class AnalyticHestonEngine : public PricingEngine {
                          Real relTolerance,
                          Size maxEvaluations);
     AnalyticHestonEngine(const ext::shared_ptr<HestonModel>& model,
-                         ComplexLogFormula cpxLog, const AnalyticHestonEngine::Integration& itg,
-                         Real andersenPiterbargEpsilon = 1e-8);
+                         ComplexLogFormula cpxLog, 
+                         const AnalyticHestonEngine::Integration& itg,
+                         Real andersenPiterbargEpsilon = 1e-25,
+                         Real alpha = -0.5);
 
     Size numberOfEvaluations() const;
 #if defined(SWIGCSHARP) || defined(SWIGPYTHON)
