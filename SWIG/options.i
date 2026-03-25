@@ -37,6 +37,7 @@
 %include calibratedmodel.i
 %include parameter.i
 %include vectors.i
+%include tuple.i
 #if defined(SWIGCSHARP) || defined(SWIGPYTHON) 
 %include std_complex.i
 #endif
@@ -438,6 +439,62 @@ class AnalyticHestonEngine : public PricingEngine {
     }
 #endif
 };
+
+
+%{
+using QuantLib::MultiPrecisionHestonEngine;    
+%}
+
+%shared_ptr(MultiPrecisionHestonEngine<double>)
+%shared_ptr(MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>>>)
+
+%template(MultiPrecisionHestonEngineResults) std::tuple<std::string, Size, Real>;
+
+template <class T>
+class MultiPrecisionHestonEngine: public PricingEngine {
+  public:
+    enum ContourIntegral {
+        Plain, AngledContourShift
+    };
+    
+    enum ControlVariate {
+        Without, BlackScholes, BlackScholes2
+    };
+    
+    enum Quadrature {
+        ExpSinh, TanhSinh, SinhSinh, GaussLaguerre
+    };
+
+    MultiPrecisionHestonEngine(
+       const ext::shared_ptr<HestonModel> hestonModel,
+       const T& precision = T(QL_EPSILON),
+       ContourIntegral ci = Plain,
+       ControlVariate cv = Without,
+       Quadrature quad = ExpSinh
+    );
+
+    %extend {        
+        std::tuple<std::string, Size, Real> calculate(
+            const Option::Type optionType,
+            const std::string& spot, const std::string& strike,
+            const std::string& t, const std::string& r, const std::string& q,
+            const std::string& _v0, const std::string& _kappa,
+            const std::string& _theta, const std::string& _sigma, const std::string& _rho) const {
+            
+                const std::tuple<T, Size, Real> result = self->calculate(
+                    optionType, spot, strike, t, r, q, _v0, _kappa, _theta, _sigma, _rho
+                );
+
+                std::stringstream ss;
+                ss << std::setprecision(std::numeric_limits<T>::digits10) << std::get<0>(result);
+                return std::make_tuple(ss.str(), std::get<1>(result), std::get<2>(result));
+        }
+    }
+};
+
+%template(MultiPrecisionHestonEngineReal) MultiPrecisionHestonEngine<double>;
+%template(MultiPrecisionHestonEngine100) MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>>>;
+
 
 %{
 using QuantLib::COSHestonEngine;
