@@ -386,6 +386,7 @@ class AnalyticHestonEngine : public PricingEngine {
         static Integration discreteSimpson(Size evaluation = 1000);
         static Integration discreteTrapezoid(Size evaluation = 1000);
         static Integration expSinh(Real relTolerance = 1e-8);
+        static Integration tanhSinh(Real relTolerance = 1e-8);
 
         static Real andersenPiterbargIntegrationLimit(
             Real c_inf, Real epsilon, Real v0, Real t);
@@ -446,7 +447,10 @@ using QuantLib::MultiPrecisionHestonEngine;
 %}
 
 %shared_ptr(MultiPrecisionHestonEngine<double>)
+%shared_ptr(MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<50>>>)
+%shared_ptr(MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<75>>>)
 %shared_ptr(MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>>>)
+%shared_ptr(MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<250>>>)
 
 %template(MultiPrecisionHestonEngineResults) std::tuple<std::string, Size, Real>;
 
@@ -467,7 +471,7 @@ class MultiPrecisionHestonEngine: public PricingEngine {
 
     MultiPrecisionHestonEngine(
        const ext::shared_ptr<HestonModel> hestonModel,
-       const T& precision = T(QL_EPSILON),
+       Real precision = QL_EPSILON,
        ContourIntegral ci = Plain,
        ControlVariate cv = Without,
        Quadrature quad = ExpSinh
@@ -493,7 +497,10 @@ class MultiPrecisionHestonEngine: public PricingEngine {
 };
 
 %template(MultiPrecisionHestonEngineReal) MultiPrecisionHestonEngine<double>;
+%template(MultiPrecisionHestonEngine50) MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<50>>>;
+%template(MultiPrecisionHestonEngine50) MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<75>>>;
 %template(MultiPrecisionHestonEngine100) MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>>>;
+%template(MultiPrecisionHestonEngine250) MultiPrecisionHestonEngine<boost::multiprecision::number<boost::multiprecision::cpp_dec_float<250>>>;
 
 
 %{
